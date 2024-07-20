@@ -237,6 +237,7 @@ type Runner struct {
 	UseMMap   *bool `json:"use_mmap,omitempty"`
 	UseMLock  bool  `json:"use_mlock,omitempty"`
 	NumThread int   `json:"num_thread,omitempty"`
+        Predict   int   `json:"predict,omitempty"`
 }
 
 // EmbedRequest is the request passed to [Client.Embed].
