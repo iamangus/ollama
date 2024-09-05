@@ -43,6 +43,14 @@ func (kv KV) Architecture() string {
 	return "unknown"
 }
 
+func (kv KV) Kind() string {
+	if s, ok := kv["general.type"].(string); ok {
+		return s
+	}
+
+	return "unknown"
+}
+
 func (kv KV) ParameterCount() uint64 {
 	return kv.u64("general.parameter_count")
 }
@@ -155,6 +163,14 @@ type Tensor struct {
 	Shape []uint64 `json:"shape"`
 
 	io.WriterTo `json:"-"`
+}
+
+func (t Tensor) block() (n int) {
+	if _, err := fmt.Sscanf(t.Name, "blk.%d.", &n); err != nil {
+		return -1
+	}
+
+	return
 }
 
 func (t Tensor) blockSize() uint64 {

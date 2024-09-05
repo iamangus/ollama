@@ -182,7 +182,6 @@ curl http://localhost:11434/v1/embeddings \
 - [x] Reproducible outputs
 - [x] Vision
 - [x] Tools (streaming support coming soon)
-- [ ] Vision
 - [ ] Logprobs
 
 #### Supported request fields
@@ -293,6 +292,31 @@ curl http://localhost:11434/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "gpt-3.5-turbo",
+        "messages": [
+            {
+                "role": "user",
+                "content": "Hello!"
+            }
+        ]
+    }'
+```
+
+### Setting the context size
+
+The OpenAI API does not have a way of setting the context size for a model. If you need to change the context size, create a `Modelfile` which looks like:
+
+```modelfile
+FROM <some model>
+PARAMETER num_ctx <context size>
+```
+
+Use the `ollama create mymodel` command to create a new model with the updated context size. Call the API with the updated model name:
+
+```shell
+curl http://localhost:11434/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+        "model": "mymodel",
         "messages": [
             {
                 "role": "user",
