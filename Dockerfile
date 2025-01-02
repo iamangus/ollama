@@ -81,26 +81,6 @@ RUN if [ -z ${OLLAMA_SKIP_ROCM_GENERATE} ] ; then \
     tar -cf - . | pigz --best > ../ollama-linux-$GOARCH-rocm.tgz ;\
     fi
 
-# Jetsons need to be built in discrete stages
-FROM --platform=linux/arm64 nvcr.io/nvidia/l4t-jetpack:${JETPACK_5} AS runners-jetpack5-arm64
-ARG GOLANG_VERSION
-RUN apt-get update && apt-get install -y git curl ccache && \
-    curl -s -L https://dl.google.com/go/go${GOLANG_VERSION}.linux-arm64.tar.gz | tar xz -C /usr/local && \
-    ln -s /usr/local/go/bin/go /usr/local/bin/go && \
-    ln -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-WORKDIR /go/src/github.com/ollama/ollama/
-COPY . .
-ARG CGO_CFLAGS
-ENV GOARCH arm64
-ARG VERSION
-RUN --mount=type=cache,target=/root/.ccache \
-    make -j 5 dist_cuda_v11 \
-        CUDA_ARCHITECTURES="72;87" \
-        GPU_RUNNER_VARIANT=_jetpack5 \
-        DIST_LIB_DIR=/go/src/github.com/ollama/ollama/dist/linux-arm64-jetpack5/lib/ollama \
-        DIST_GPU_RUNNER_DEPS_DIR=/go/src/github.com/ollama/ollama/dist/linux-arm64-jetpack5/lib/ollama/cuda_jetpack5
-
 FROM --platform=linux/arm64 unified-builder-arm64 AS build-arm64
 COPY . .
 ARG OLLAMA_SKIP_CUDA_GENERATE
